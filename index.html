@@ -317,8 +317,16 @@
       const to = "pritc1195@gmail.com";
       const subject = encodeURIComponent("Date night dinner selection");
       const body = encodeURIComponent(
-        `Dinner selected: ${selectedChoice}\n\nSent from the Date Night page ❤️`
+        `Hey ❤️
+        
+          Dinner is officially decided!
+          Choice: ${selectedChoice} 🍽️
+          
+          Looking forward to a fun date night together ✨
+        
+        — Sent from the Date Night page`
       );
+
 
       window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
     });
