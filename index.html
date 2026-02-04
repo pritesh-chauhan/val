@@ -2,303 +2,262 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Will you be my Valentine?</title>
-
-  <!-- Confetti library -->
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Date Night?</title>
 
   <style>
-    :root {
-      --bg1: #ffd6e7;
-      --bg2: #ffeef6;
-      --card: #ffffffcc;
-      --yes: #ff3b7a;
-      --yesHover: #ff1f68;
-    }
-
-    * { box-sizing: border-box; }
+    * { box-sizing: border-box; font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif; }
 
     body {
       margin: 0;
-      min-height: 100svh;
-      display: grid;
-      place-items: center;
-      background: radial-gradient(circle at top, var(--bg2), var(--bg1));
-      font-family: system-ui, sans-serif;
-      overflow: hidden;
-      padding: 16px;
-    }
-
-    /* FULL-SCREEN CONFETTI CANVAS */
-    #confettiCanvas {
-      position: fixed;
-      inset: 0;
-      width: 100vw;
       height: 100vh;
-      pointer-events: none;
-      z-index: 9999;
+      background: linear-gradient(135deg, #ffd6e8, #ffeef5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
     }
 
     .card {
-      width: min(720px, 92vw);
-      padding: 26px 22px;
-      background: var(--card);
-      backdrop-filter: blur(10px);
-      border-radius: 22px;
+      background: white;
+      padding: 28px 24px 32px;
+      border-radius: 20px;
       text-align: center;
-      box-shadow: 0 18px 60px rgba(0,0,0,.15);
-    }
-
-    .art {
-      width: min(260px, 80vw);
-      margin: 0 auto 10px;
-      display: block;
-      filter: drop-shadow(0 10px 14px rgba(0,0,0,.12));
-    }
-
-    h1 {
-      font-size: clamp(26px, 4vw, 44px);
-      margin: 12px 0 18px;
-    }
-
-    .button-zone {
+      width: 90%;
+      max-width: 420px;
+      box-shadow: 0 30px 60px rgba(0,0,0,.15);
       position: relative;
-      width: min(520px, 92%);
-      height: 150px;
-      margin: 0 auto;
-      touch-action: none;
+    }
+
+    h1, h2 { margin: 0 0 12px; }
+    p { margin: 0 0 18px; opacity: .8; }
+
+    .zone {
+      position: relative;
+      height: 120px;
+      touch-action: manipulation;
     }
 
     button {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      padding: 16px 24px;
-      font-size: 18px;
+      padding: 14px 22px;
+      font-size: 16px;
       font-weight: 800;
       border-radius: 999px;
       border: none;
       cursor: pointer;
-      box-shadow: 0 10px 24px rgba(0,0,0,.14);
+      position: absolute;
+      transition: transform .2s ease;
       user-select: none;
       -webkit-tap-highlight-color: transparent;
-      transition: transform .12s ease, background .12s ease;
     }
 
     #yesBtn {
-      left: 18%;
-      background: var(--yes);
-      color: #fff;
+      background: #ff5fa2;
+      color: white;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%) scale(1);
+      z-index: 2;
+      will-change: transform; /* smoother scaling */
     }
-    #yesBtn:hover { background: var(--yesHover); }
 
+    /* NO is a decoy: cannot be clicked */
     #noBtn {
-      left: 62%;
-      background: #e5e7eb;
-      color: #111827;
+      background: #f1f1f1;
+      color: #777;
+      pointer-events: none;
+      left: 10%;
+      top: 20%;
     }
 
-    .hint {
-      margin-top: 10px;
-      font-size: 13px;
-      opacity: .7;
-    }
+    .hint { font-size: 14px; margin-top: 8px; opacity: .6; }
 
-    .result {
-      display: none;
-      margin-top: 18px;
-      animation: pop .35s ease;
-    }
-
-    .result h2 {
-      font-size: clamp(30px, 4.5vw, 46px);
-      margin: 10px 0;
-    }
+    .result { display: none; }
 
     .fireworks {
-      width: min(380px, 90vw);
-      margin: 0 auto;
-      display: block;
+      width: 100%;
+      max-width: 260px;
+      margin: 14px auto;
+      border-radius: 14px;
     }
 
-    @keyframes pop {
-      from { transform: scale(.96); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
+    .restaurants {
+      margin-top: 14px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
     }
+
+    .chip {
+      padding: 12px 16px;
+      font-size: 16px;
+      font-weight: 800;
+      border-radius: 999px;
+      border: 2px solid #ffd1e0;
+      background: #fff;
+      cursor: pointer;
+      box-shadow: 0 10px 24px rgba(0,0,0,.1);
+      position: static; /* important: keep chips from behaving like zone buttons */
+      transform: none;
+    }
+
+    .chip:hover { transform: scale(1.04); }
+
+    .picked { margin-top: 14px; font-size: 16px; font-weight: 800; opacity: .9; }
+
+    canvas { position: fixed; inset: 0; pointer-events: none; }
   </style>
 </head>
 
 <body>
-  <canvas id="confettiCanvas"></canvas>
+  <canvas id="confetti"></canvas>
 
-  <main class="card">
-    <!-- ANIMAL WITH HEART -->
-    <svg class="art" viewBox="0 0 320 240" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="fur" x1="0" x2="1">
-          <stop offset="0" stop-color="#f7c7a1"/>
-          <stop offset="1" stop-color="#f2a97b"/>
-        </linearGradient>
-        <linearGradient id="heart" x1="0" x2="1">
-          <stop offset="0" stop-color="#ff4d7d"/>
-          <stop offset="1" stop-color="#ff1f68"/>
-        </linearGradient>
-      </defs>
+  <div class="card">
+    <section id="ask">
+      <h1>Date night? 💖</h1>
+      <p>I promise it’ll be fun.</p>
 
-      <path d="M250 50 C250 33 270 25 282 38
-               C294 25 314 33 314 50
-               C314 78 282 92 282 106
-               C282 92 250 78 250 50Z"
-            fill="url(#heart)"/>
+      <div class="zone" id="zone">
+        <button id="yesBtn" type="button">Yes 😍</button>
+        <button id="noBtn" type="button">No 🙄</button>
+      </div>
 
-      <path d="M90 120 C90 70 140 40 190 60
-               C240 40 290 70 290 120
-               C290 180 240 210 190 210
-               C140 210 90 180 90 120Z"
-            fill="url(#fur)"/>
-
-      <path d="M110 92 L95 55 L140 78 Z" fill="#f2a97b"/>
-      <path d="M270 92 L285 55 L240 78 Z" fill="#f2a97b"/>
-
-      <circle cx="160" cy="130" r="8"/>
-      <circle cx="220" cy="130" r="8"/>
-
-      <path d="M190 144 C186 144 182 148 182 152
-               C182 160 190 164 190 170
-               C190 164 198 160 198 152
-               C198 148 194 144 190 144Z"
-            fill="#ff7aa2"/>
-    </svg>
-
-    <h1>Priyanka will you be my valentine?</h1>
-
-    <section class="button-zone" id="zone">
-      <button id="yesBtn">Yes</button>
-      <button id="noBtn">No</button>
+      <div class="hint" id="hint">You already know the right answer.</div>
     </section>
-
-    <!-- HINT -->
-    <div class="hint" id="hint">“No” seems a bit shy 😈</div>
 
     <section class="result" id="result">
       <h2>YAY! 🎉</h2>
+
+      <!-- First celebration GIF -->
       <img
         class="fireworks"
         src="https://media.giphy.com/media/26ufdipQqU2lhNA4g/giphy.gif"
-        alt="Fireworks"
+        alt="Celebration"
       />
+
+      <!-- Dinner step -->
+      <div id="dinnerStep" style="display:none; margin-top: 18px;">
+        <h2>Now pick dinner 🍽️</h2>
+
+        <!-- Second GIF -->
+        <img
+          class="fireworks"
+          src="https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif"
+          alt="Food celebration"
+        />
+
+        <div class="restaurants" id="restaurants">
+          <button class="chip" data-choice="Italian" type="button">Italian 🍝</button>
+          <button class="chip" data-choice="Sushi" type="button">Sushi 🍣</button>
+          <button class="chip" data-choice="Street Food" type="button">Street Food 🌮</button>
+          <button class="chip" data-choice="Surprise Me" type="button">Surprise Me 🎲</button>
+        </div>
+
+        <div id="picked" class="picked" style="display:none;"></div>
+      </div>
     </section>
-  </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
   <script>
-    const zone = document.getElementById("zone");
     const yesBtn = document.getElementById("yesBtn");
     const noBtn = document.getElementById("noBtn");
+    const zone = document.getElementById("zone");
+    const ask = document.getElementById("ask");
     const result = document.getElementById("result");
-    const hint = document.getElementById("hint");
 
-    /* ---------- CONFETTI ---------- */
-    const confettiCanvas = document.getElementById("confettiCanvas");
+    const dinnerStep = document.getElementById("dinnerStep");
+    const restaurants = document.getElementById("restaurants");
+    const picked = document.getElementById("picked");
 
-    function resizeConfettiCanvas() {
-      const dpr = Math.max(1, window.devicePixelRatio || 1);
-      confettiCanvas.width = Math.floor(window.innerWidth * dpr);
-      confettiCanvas.height = Math.floor(window.innerHeight * dpr);
-      confettiCanvas.style.width = "100vw";
-      confettiCanvas.style.height = "100vh";
+    const canvas = document.getElementById("confetti");
+    const confettiInstance = confetti.create(canvas, { resize: true });
+
+    // --- Smooth anti-flicker hover logic ---
+    let rafId = null;
+    let isLocked = false;
+    let yesScale = 1;
+
+    function moveNo() {
+      const x = Math.random() * 70;
+      const y = Math.random() * 70;
+      noBtn.style.left = `${x}%`;
+      noBtn.style.top = `${y}%`;
+
+      // Optional: fun text changes while running away
+      const lines = ["No 🙄", "Nope 😤", "Try again 😏", "Not today 😈", "Still no 😬", "…maybe? 🤭"];
+      noBtn.textContent = lines[Math.floor(Math.random() * lines.length)];
     }
 
-    resizeConfettiCanvas();
-    window.addEventListener("resize", resizeConfettiCanvas);
-    window.addEventListener("orientationchange", () => setTimeout(resizeConfettiCanvas, 150));
+    function growYes() {
+      yesScale = Math.min(1.6, yesScale + 0.03); // cap growth
+      yesBtn.style.transform = `translate(-50%, -50%) scale(${yesScale})`;
+    }
 
-    const confettiInstance = confetti.create(confettiCanvas, {
-      resize: false,
-      useWorker: true
-    });
+    // Use pointermove + rAF throttling to prevent flicker while clicking
+    zone.addEventListener("pointermove", (e) => {
+      if (isLocked) return;
 
-    function fullScreenConfetti() {
-      const end = Date.now() + 1600;
+      // If pointer is on YES button, don't move stuff under the cursor
+      if (e.target === yesBtn) return;
 
-      (function frame() {
-        confettiInstance({
-          particleCount: 12,
-          spread: 90,
-          startVelocity: 45,
-          ticks: 180,
-          origin: { x: Math.random(), y: Math.random() * 0.3 }
-        });
-        if (Date.now() < end) requestAnimationFrame(frame);
-      })();
+      if (rafId) return;
+      rafId = requestAnimationFrame(() => {
+        moveNo();
+        growYes();
+        rafId = null;
+      });
+    }, { passive: true });
+
+    // YES click
+    yesBtn.addEventListener("click", () => {
+      isLocked = true; // stop hover/runaway updates
+
+      ask.style.display = "none";
+      result.style.display = "block";
+
+      confettiInstance({
+        particleCount: 250,
+        spread: 120,
+        startVelocity: 60,
+        ticks: 250,
+        origin: { x: 0.5, y: 0.5 }
+      });
 
       setTimeout(() => {
+        dinnerStep.style.display = "block";
         confettiInstance({
-          particleCount: 300,
-          spread: 140,
-          startVelocity: 60,
-          ticks: 220,
-          origin: { x: 0.5, y: 0.55 }
+          particleCount: 160,
+          spread: 100,
+          startVelocity: 50,
+          ticks: 200,
+          origin: { x: 0.5, y: 0.45 }
         });
-      }, 300);
-    }
-
-    /* ---------- YES BUTTON GROWS ---------- */
-    let yesScale = 1;
-    function growYes() {
-      yesScale = Math.min(2.2, yesScale + 0.1);
-      yesBtn.style.transform = `translateY(-50%) scale(${yesScale})`;
-    }
-
-    /* ---------- NO BUTTON RUNS AWAY ---------- */
-    function clamp(n, min, max) {
-      return Math.max(min, Math.min(max, n));
-    }
-
-    function moveNo(px, py) {
-      const z = zone.getBoundingClientRect();
-      const b = noBtn.getBoundingClientRect();
-
-      let dx = (b.left + b.width / 2) - px;
-      let dy = (b.top + b.height / 2) - py;
-      let mag = Math.hypot(dx, dy) || 1;
-      dx /= mag;
-      dy /= mag;
-
-      let newLeft = (b.left - z.left) + dx * 150;
-      let newTop  = (b.top - z.top) + dy * 150;
-
-      newLeft = clamp(newLeft, 0, z.width - b.width);
-      newTop  = clamp(newTop, 0, z.height - b.height);
-
-      noBtn.style.left = newLeft + "px";
-      noBtn.style.top = newTop + "px";
-      noBtn.style.transform = "none";
-
-      growYes();
-    }
-
-    zone.addEventListener("pointermove", e => {
-      const b = noBtn.getBoundingClientRect();
-      const d = Math.hypot(
-        (b.left + b.width / 2) - e.clientX,
-        (b.top + b.height / 2) - e.clientY
-      );
-      if (d < 140) moveNo(e.clientX, e.clientY);
+      }, 1400);
     });
 
-    noBtn.addEventListener("click", e => e.preventDefault());
+    // Restaurant selection
+    restaurants.addEventListener("click", (e) => {
+      const btn = e.target.closest("button[data-choice]");
+      if (!btn) return;
 
-    /* ---------- YES CLICK ---------- */
-    yesBtn.addEventListener("click", () => {
-      zone.style.display = "none";
-      hint.style.display = "none";     // HIDE THE HINT
-      result.style.display = "block";
-      resizeConfettiCanvas();
-      fullScreenConfetti();
+      const choice = btn.dataset.choice;
+      picked.style.display = "block";
+      picked.textContent =
+        choice === "Surprise Me"
+          ? "Mystery date unlocked 😈 I’ll plan it."
+          : `Locked in: ${choice}. Date night is official ❤️`;
+
+      confettiInstance({
+        particleCount: 120,
+        spread: 100,
+        startVelocity: 45,
+        ticks: 180,
+        origin: { x: Math.random() * 0.6 + 0.2, y: 0.5 }
+      });
     });
   </script>
 </body>
 </html>
-
-
